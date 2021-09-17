@@ -161,7 +161,9 @@ namespace NeuroLoopGainLibrary.Edf
       if (!ValidFormat)
         return;
       CalculateDataBlockSize();
-      FileInfo.NrDataRecords = (int)(FileSize - FileInfo.HeaderBytes) / DataBlockSize / sizeof(short);
+      // Mirzakhalili--My files have the correct NrDataRecords. The following line fails for me because my FileSize is large.
+      // Can potentially change (int) to (long) but it becomes messy because of all dependencies on the fact that NrDataRecords type is set as int.
+      //FileInfo.NrDataRecords = (int)(FileSize - FileInfo.HeaderBytes) / DataBlockSize / sizeof(short);
     }
 
     protected bool CheckHeader()
@@ -451,7 +453,8 @@ namespace NeuroLoopGainLibrary.Edf
         return false;
       try
       {
-        long dataBlockOffset = FileInfo.HeaderBytes + (blockNr * DataBlockSize * sizeof(short));
+        // Mirzakhalili--Had to fix this line to make sure that the large files can be read.
+        long dataBlockOffset = FileInfo.HeaderBytes + ((long)blockNr * DataBlockSize * sizeof(short));
         // Read data to the buffer
         lock (FileAccess)
         {
